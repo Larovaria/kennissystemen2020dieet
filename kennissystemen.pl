@@ -18,11 +18,10 @@ klacht(spierproblemen).
 klacht(zwangerschap).
 
 %lichaamswaardes
-lengte(_).
-gewicht(_).
-geslacht(m).
-geslacht(v).
-leeftijd(_).
+:- dynamic lengte/1.
+:- dynamic gewicht/1.
+:- dynamic geslacht/1.
+:- dynamic leeftijd/1.
 %-------------------------------------------
 
 
@@ -62,6 +61,70 @@ probleem(vitamineA, X, lichaam(_,_,geslacht(v),_, BMI), overschot):-
 %-------------------------------------------
 
 
+%progamma
+%-------------------------------------------
+verwijderLichaam:-
+    retractall(lengte(_)),
+    retractall(gewicht(_)),
+    retractall(geslacht(_)),
+    retractall(leeftijd(_)).
+
+
+initialisatie:-
+  verwijderLichaam,
+  asserta(lengte(1)),
+  asserta(gewicht(2)),
+  asserta(geslacht(m)),
+  asserta(leeftijd(3)).
+:-initialisatie.
+
+lichaaminvoer("j").
+lichaaminvoer("n"):-
+  verwijderLichaam,
+  writeln('wat is uw lengte in meter?'),
+  read_line_to_string(user_input, L),
+  number_string(L2, L),
+  asserta(lengte(L2)),
+  writeln('wat is uw gewicht in kilogrammen?'),
+  read_line_to_string(user_input, W),
+    number_string(W2, W),
+  asserta(gewicht(W2)),
+  writeln('wat is uw geslacht? m/v'),
+  read_line_to_string(user_input, S),
+  asserta(geslacht(S)),
+  writeln('wat is uw leeftijd?'),
+  read_line_to_string(user_input, A),
+    number_string(A2, A),
+  asserta(leeftijd(A2)).
+
+
+
+printLichaam :-
+  lengte(L),
+  gewicht(W),
+  geslacht(S),
+  leeftijd(A),
+  writeln('uw lichaamswaardes zijn:'),
+  format('lengte:   ~w meter ~ngewicht:  ~w kilogram ~ngeslacht: ~w ~nleeftijd: ~w jaar ~n', [L, W, S, A]),
+  nl.
+
+vraagomlichaam:-
+     write('\e[2J'),%tty_clear
+     repeat,
+     nl,
+     printLichaam,
+     writeln('is dit correct? j/n'),
+     read_line_to_string(user_input, Keuze),
+     write(Keuze),
+     lichaaminvoer(Keuze),
+     Keuze == "j".
+
+
+
+
+
+
+
 
 kennissysteem():-
     %code om te checken of er al lichaamsgegevens zijn ingevoerd.
@@ -80,4 +143,3 @@ bmi():-
     X is G/(L*L),
     write('je BMI is: '),
     write(X).
-
