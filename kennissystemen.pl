@@ -109,35 +109,50 @@ printLichaam :-
   nl.
 
 vraagomlichaam:-
-     write('\e[2J'),%tty_clear
      repeat,
+     write('\e[2J'),%tty_clear
      illustratie,
      nl,
      printLichaam,
      writeln('is dit correct? j/n'),
      read_line_to_string(user_input, Keuze),
-     write(Keuze),
      lichaaminvoer(Keuze),
      Keuze == "j".
 
+verwerk_keuze("0").
+verwerk_keuze("1"):-
+  vraagomlichaam.
+verwerk_keuze("2"):-
+  vraagklachten.
+verwerk_keuze("3"):-
+  bepaaltekorten.
 
 
 
 
 
-
-
-kennissysteem():-
+kennissysteem :-
   repeat,
   write('\e[2J'),
   illustratie,
+  format('~46t~72|~n'),
+  writeln("kennissysteem om te bepalen waar de klachten door komen"),
+  writeln('1. Voer lichaams gegevens in'),
+  writeln('2. voer klachten in'),
+  writeln('3. bepaal tekorten'),
+  writeln('0. Afsluiten'),
+  format('~46t~72|~n'),
+  read_line_to_string(user_input, Keuze),
+  verwerk_keuze(Keuze),
+  Keuze == "0".
+
 
   %code om te checken of er al lichaamsgegevens zijn ingevoerd.
   %code die vraagt naar de klachten.
   %code die klachten vergelijkt en redeneert wat het probleem is.
   %als meer dan 1 probleem mogelijk vraag dan naar inname om onduidelijkheid te verbeteren.
-  write('ik heb slecht nieuws voor je.\n'),
-  write('je gaat dood vanwege teveel schoonmaakmiddel in je bloed.').
+%  write('ik heb slecht nieuws voor je.\n'),
+%  write('je gaat dood vanwege teveel schoonmaakmiddel in je bloed.').
 
 
 bmi:-
@@ -157,3 +172,5 @@ illustratie:-
   writeln("|         |"),
   writeln("\\        /"),
   writeln(" `._,._,'").
+
+%:- kennissysteem.
