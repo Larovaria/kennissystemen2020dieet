@@ -87,14 +87,14 @@ lichaaminvoer("n"):-
   asserta(lengte(L2)),
   writeln('wat is uw gewicht in kilogrammen?'),
   read_line_to_string(user_input, W),
-    number_string(W2, W),
+  number_string(W2, W),
   asserta(gewicht(W2)),
   writeln('wat is uw geslacht? m/v'),
   read_line_to_string(user_input, S),
   asserta(geslacht(S)),
   writeln('wat is uw leeftijd?'),
   read_line_to_string(user_input, A),
-    number_string(A2, A),
+  number_string(A2, A),
   asserta(leeftijd(A2)).
 
 
@@ -111,6 +111,7 @@ printLichaam :-
 vraagomlichaam:-
      write('\e[2J'),%tty_clear
      repeat,
+     illustratie,
      nl,
      printLichaam,
      writeln('is dit correct? j/n'),
@@ -127,19 +128,32 @@ vraagomlichaam:-
 
 
 kennissysteem():-
-    %code om te checken of er al lichaamsgegevens zijn ingevoerd.
-    %code die vraagt naar de klachten.
-    %code die klachten vergelijkt en redeneert wat het probleem is.
-    %als meer dan 1 probleem mogelijk vraag dan naar inname om onduidelijkheid te verbeteren.
-    write('ik heb slecht nieuws voor je.\n'),
-    write('je gaat dood vanwege teveel schoonmaakmiddel in je bloed.').
+  repeat,
+  write('\e[2J'),
+  illustratie,
+
+  %code om te checken of er al lichaamsgegevens zijn ingevoerd.
+  %code die vraagt naar de klachten.
+  %code die klachten vergelijkt en redeneert wat het probleem is.
+  %als meer dan 1 probleem mogelijk vraag dan naar inname om onduidelijkheid te verbeteren.
+  write('ik heb slecht nieuws voor je.\n'),
+  write('je gaat dood vanwege teveel schoonmaakmiddel in je bloed.').
 
 
-bmi():-
-    write('wat is je lengte in meter?\n'),
-    read(L),
-    write('hoe zwaar ben je in kilogram?\n'),
-    read(G),
-    X is G/(L*L),
-    write('je BMI is: '),
-    write(X).
+bmi:-
+  write('wat is je lengte in meter?\n'),
+  read_line_to_string(user_input, L1),
+  write('hoe zwaar ben je in kilogram?\n'),
+  read_line_to_string(user_input, G1),
+  number_string(L, L1),
+  number_string(G, G1),
+  X is G/(L*L),
+  write('je BMI is: '),
+  write(X).
+
+illustratie:-
+  writeln(" ,--./,-."),
+  writeln("/ #      \\"),
+  writeln("|         |"),
+  writeln("\\        /"),
+  writeln(" `._,._,'").
