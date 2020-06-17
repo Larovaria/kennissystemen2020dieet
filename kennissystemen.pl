@@ -69,7 +69,6 @@ verwijderLichaam:-
     retractall(geslacht(_)),
     retractall(leeftijd(_)).
 
-
 initialisatie:-
   verwijderLichaam,
   asserta(lengte(1)),
@@ -95,9 +94,8 @@ lichaaminvoer("n"):-
   writeln('wat is uw leeftijd?'),
   read_line_to_string(user_input, A),
   number_string(A2, A),
-  asserta(leeftijd(A2)).
-
-
+  asserta(leeftijd(A2)),
+  vraagomlichaam.
 
 printLichaam :-
   lengte(L),
@@ -109,15 +107,41 @@ printLichaam :-
   nl.
 
 vraagomlichaam:-
-     repeat,
+%     repeat,
      write('\e[2J'),%tty_clear
      illustratie,
      nl,
      printLichaam,
      writeln('is dit correct? j/n'),
      read_line_to_string(user_input, Keuze),
-     lichaaminvoer(Keuze),
-     Keuze == "j".
+     lichaaminvoer(Keuze).
+
+klachteninvoer("j").
+klachteninvoer("n"):-
+  writeln("hier implementeren hoe de klachten opgevraagd worden").
+
+printhuidigeklachten:-
+    writeln("u heeft aangegeven dat u last heeft van: "),
+    nl,
+    writeln('hier implementeren hoe de klachten weergegeven worden').
+
+vraagklachten:-
+    format('~46t~72|~n'),
+    printhuidigeklachten,
+    nl,
+    writeln('is dit correct? j/n'),
+    read_line_to_string(user_input, Keuze),
+    klachteninvoer(Keuze),
+    format('~46t~72|~n').
+
+printtekorten:-
+  writeln("hier de implementatie van wat de tekorten zijn").
+
+bepaaltekorten:-
+  writeln("we gaan bepalen wat uw tekorten zijn"),
+  printhuidigeklachten,
+  writeln("op basis hiervan zijn uw tekorten"),
+  printtekorten.
 
 verwerk_keuze("0").
 verwerk_keuze("1"):-
@@ -126,9 +150,6 @@ verwerk_keuze("2"):-
   vraagklachten.
 verwerk_keuze("3"):-
   bepaaltekorten.
-
-
-
 
 
 kennissysteem :-
