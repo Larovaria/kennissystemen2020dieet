@@ -1,12 +1,12 @@
 %concepten
 %-------------------------------------------
-%gezonde drempelwaardes mg per BMI
-supplement(vitamineA, alfa).
-supplement(vitamineB12, alfa).
-supplement(vitamineD, alfa).
-supplement(magnesium, alfa).
-supplement(ijzer, alfa).
-supplement(calcium, alfa).
+%lijst van supplementen
+supplement(vitamineA).
+supplement(vitamineB12).
+supplement(vitamineD).
+supplement(magnesium).
+supplement(ijzer).
+supplement(calcium).
 
 %klachten die veroorzaakt worden door
 klacht(vermoeidheid).
@@ -16,6 +16,9 @@ klacht(hoofdpijn).
 klacht(stress).
 klacht(spierproblemen).
 klacht(zwangerschap).
+
+%welke klachten de gebruiker wel en niet heeft
+:- dynamic klachten/2.
 
 %lichaamswaardes
 :- dynamic lengte/1.
@@ -77,6 +80,14 @@ initialisatie:-
   asserta(leeftijd(3)).
 :-initialisatie.
 
+%schone manier om duidelijk de vraag te onderscheiden
+vraag(Keuze):-
+  nl,
+  read_line_to_string(user_input, Keuze),
+  nl.
+
+
+
 lichaaminvoer("j").
 lichaaminvoer("n"):-
   verwijderLichaam,
@@ -98,12 +109,14 @@ lichaaminvoer("n"):-
   vraagomlichaam.
 
 printLichaam :-
+  format('~46t~72|~n'),
   lengte(L),
   gewicht(W),
   geslacht(S),
   leeftijd(A),
   writeln('uw lichaamswaardes zijn:'),
   format('lengte:   ~w meter ~ngewicht:  ~w kilogram ~ngeslacht: ~w ~nleeftijd: ~w jaar ~n', [L, W, S, A]),
+  format('~46t~72|~n'),
   nl.
 
 vraagomlichaam:-
@@ -113,29 +126,81 @@ vraagomlichaam:-
      nl,
      printLichaam,
      writeln('is dit correct? j/n'),
-     read_line_to_string(user_input, Keuze),
+     vraag(Keuze),
      lichaaminvoer(Keuze).
 
-klachteninvoer("j").
-klachteninvoer("n"):-
-  writeln("hier implementeren hoe de klachten opgevraagd worden").
+klachteninvoer("0").
+klachteninvoer("1"):-
+  vraagnieuweklachten.
+klachteninvoer("2"):-
+  retractall(klachten(_, _)),
+  writeln('Nu staan er geen klachten meer in het systeem'),
+  writeln('om te weten wat uw tekorten zijn moet u klachten toevoegen').
+
+lastvan(Last):-
+    findall(K1, klachten(klacht(K1), ja), Last).
+geenlast(Last):-
+      findall(K2, klachten(klacht(K2), nee), Last).
 
 printhuidigeklachten:-
-    writeln("u heeft aangegeven dat u last heeft van: "),
     nl,
-    writeln('hier implementeren hoe de klachten weergegeven worden').
+    format('~46t~72|~n'),
+    lastvan(Last),
+    writeln("u heeft aangegeven dat u last heeft van: "),
+    writeln(Last),
+    nl,
+    geenlast(GLast),
+    writeln("u heeft aangegeven dat u geen last heeft van: "),
+    writeln(GLast),
+    format('~46t~72|~n').
+
+vraagnieuweklachten:-
+  ongevraagdeklachten(X),
+  vraagnaarklacht(X).
+
+vraagnaarklacht([]):-
+  writeln("we hebben op dit moment niks meer om te vragen").
+vraagnaarklacht([H|T]):-
+  format("Heeft u last van ~w~n", [H]),
+  writeln("1, Ja ik heb hier last van"),
+  writeln("2. Nee ik heb hier geen last van"),
+  writeln("0. Dit kan of wil ik niet zeggen"),
+  vraag(Keuze),
+  nieuweklacht(Keuze, H, T).
+
+nieuweklacht("1", X, _):-
+  asserta(klachten(klacht(X), ja)).
+nieuweklacht("2", X, _):-
+  asserta(klachten(klacht(X), nee)).
+nieuweklacht("0", _, Y):-
+  vraagnaarklacht(Y).
+
+ongevraagdeklachten(X):-
+  findall(K1, klachten(klacht(K1), ja), L1),
+  findall(K2, klachten(klacht(K2), nee), L2),
+  findall(K3, klacht(K3), L3),
+  removeklachten(L3, L1, X1),
+  removeklachten(X1, L2, X).
+
+removeklachten(L1, [Rh|Rt], L2):-
+  delete(L1, Rh, L),
+  removeklachten(L, Rt, L2).
+removeklachten(L, [], L).
+
 
 vraagklachten:-
     format('~46t~72|~n'),
     printhuidigeklachten,
     nl,
-    writeln('is dit correct? j/n'),
-    read_line_to_string(user_input, Keuze),
+    writeln('1. nog een klacht toevoegen'),
+    writeln('2. dit is incorrect, wis alles'),
+    writeln('0. dit is correct, ga terug'),
+    vraag(Keuze),
     klachteninvoer(Keuze),
     format('~46t~72|~n').
 
 printtekorten:-
-  writeln("hier de implementatie van wat de tekorten zijn").
+    writeln("hier de implementatie van wat de tekorten zijn").
 
 bepaaltekorten:-
   writeln("we gaan bepalen wat uw tekorten zijn"),
@@ -149,13 +214,31 @@ verwerk_keuze("1"):-
 verwerk_keuze("2"):-
   vraagklachten.
 verwerk_keuze("3"):-
-  bepaaltekorten.
+  findall(Sup,supplement(Sup) , Supplementen),
+  vindalletekorten(Supplementen).
 
+vindalletekorten([]).
+vindalletekorten([Sup|T]):-
+  heefttekort(Sup),
+  vindalletekorten(T).
 
+zijnernogklachten:-
+  ongevraagdeklachten(X),
+  length(X, Y),
+  Y > 0,
+  writeln('er zijn nog klachten die ingevoerd kunnen worden').
+zijnernogklachten:-
+  writeln("u kunt uw tekorten bepalen").
+
+%wrapper voor lekker kort typen
+ksy:- kennissysteem.
 kennissysteem :-
   repeat,
   write('\e[2J'),
   illustratie,
+  nl,
+  zijnernogklachten,
+  nl,
   format('~46t~72|~n'),
   writeln("kennissysteem om te bepalen waar de klachten door komen"),
   writeln('1. Voer lichaams gegevens in'),
@@ -163,10 +246,26 @@ kennissysteem :-
   writeln('3. bepaal tekorten'),
   writeln('0. Afsluiten'),
   format('~46t~72|~n'),
-  read_line_to_string(user_input, Keuze),
+  vraag(Keuze),
   verwerk_keuze(Keuze),
   Keuze == "0".
 
+%TODO
+heefttekort(Sup):-
+  supplement(Sup),
+  findall(K, oorzaak(K, Sup, tekort), Klachten),
+  heefttekorten(Klachten),
+  write("U heeft mogelijk last van "),
+  write(Sup),
+  writeln(' tekort'),
+  writeln('dit is beredeneert omdat u aangegeven dat u last heeft van'),
+  writeln(Klachten),
+  nl,nl.
+
+heefttekorten([]).
+heefttekorten([H|T]):-
+  klachten(H, ja),
+  heefttekorten(T).
 
   %code om te checken of er al lichaamsgegevens zijn ingevoerd.
   %code die vraagt naar de klachten.
@@ -174,18 +273,6 @@ kennissysteem :-
   %als meer dan 1 probleem mogelijk vraag dan naar inname om onduidelijkheid te verbeteren.
 %  write('ik heb slecht nieuws voor je.\n'),
 %  write('je gaat dood vanwege teveel schoonmaakmiddel in je bloed.').
-
-
-bmi:-
-  write('wat is je lengte in meter?\n'),
-  read_line_to_string(user_input, L1),
-  write('hoe zwaar ben je in kilogram?\n'),
-  read_line_to_string(user_input, G1),
-  number_string(L, L1),
-  number_string(G, G1),
-  X is G/(L*L),
-  write('je BMI is: '),
-  write(X).
 
 illustratie:-
   writeln(" ,--./,-."),
