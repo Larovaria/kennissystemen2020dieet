@@ -74,10 +74,7 @@ verwijderLichaam:-
 
 initialisatie:-
   verwijderLichaam,
-  asserta(lengte(1)),
-  asserta(gewicht(2)),
-  asserta(geslacht(m)),
-  asserta(leeftijd(3)).
+  retractall(klachten(_, _)).
 :-initialisatie.
 
 %schone manier om duidelijk de vraag te onderscheiden
@@ -108,6 +105,7 @@ lichaaminvoer("n"):-
   asserta(leeftijd(A2)),
   vraagomlichaam.
 
+
 printLichaam :-
   format('~46t~72|~n'),
   lengte(L),
@@ -118,16 +116,20 @@ printLichaam :-
   format('lengte:   ~w meter ~ngewicht:  ~w kilogram ~ngeslacht: ~w ~nleeftijd: ~w jaar ~n', [L, W, S, A]),
   format('~46t~72|~n'),
   nl.
+printLichaam:-
+  writeln('er zijn  geen lichaamsgegevens ingevuld'),
+  lichaaminvoer("n").
 
 vraagomlichaam:-
-%     repeat,
+     repeat,
      write('\e[2J'),%tty_clear
      illustratie,
      nl,
      printLichaam,
      writeln('is dit correct? j/n'),
      vraag(Keuze),
-     lichaaminvoer(Keuze).
+     lichaaminvoer(Keuze),
+     Keuze=="j".
 
 klachteninvoer("0").
 klachteninvoer("1"):-
@@ -266,13 +268,6 @@ heefttekorten([]).
 heefttekorten([H|T]):-
   klachten(H, ja),
   heefttekorten(T).
-
-  %code om te checken of er al lichaamsgegevens zijn ingevoerd.
-  %code die vraagt naar de klachten.
-  %code die klachten vergelijkt en redeneert wat het probleem is.
-  %als meer dan 1 probleem mogelijk vraag dan naar inname om onduidelijkheid te verbeteren.
-%  write('ik heb slecht nieuws voor je.\n'),
-%  write('je gaat dood vanwege teveel schoonmaakmiddel in je bloed.').
 
 illustratie:-
   writeln(" ,--./,-."),
