@@ -491,6 +491,7 @@ illustratie:-
 
 initialisatie:-
   lichaaminvoer("n"),
-  retractall(klachten(_, _)).
+  retractall(klachten(_, _)),
+  ksy.
 
 :- initialisatie.
