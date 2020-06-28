@@ -512,5 +512,6 @@ illustratie:-
 initialisatie:-
   lichaaminvoer("n"),
   retractall(klachten(_, _)),
+  iszwanger,
   ksy.
 :- initialisatie.
