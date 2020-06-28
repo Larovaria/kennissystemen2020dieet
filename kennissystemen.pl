@@ -212,7 +212,9 @@ lichaaminvoer("n"):-
   read_line_to_string(user_input, A),
   lichaamToevoegen(L, W, S, A).
 
-issexe("m").
+issexe("m"):-
+  asserta(zwanger("n")),
+  iszwanger.
 issexe("v"):-
   writeln('u heeft aangegeven een vrouw te zijn'),
   writeln('bent u toevallig zwanger? j/n'),
@@ -364,6 +366,14 @@ bepaaltekorten:-
   writeln("op basis hiervan zijn uw tekorten"),
   printtekorten.
 
+vindalletekorten([], []).
+vindalletekorten([Sup|T], [Sup|T2]):-
+  heefttekort(Sup),
+  vindalletekorten(T, T2).
+vindalletekorten([Sup|T], T2):-
+  not(heefttekort(Sup)),
+  vindalletekorten(T, T2).
+
 verwerk_keuze("0").
 verwerk_keuze("1"):-
   vraagomlichaam.
@@ -372,16 +382,11 @@ verwerk_keuze("2"):-
 verwerk_keuze("3"):-
   findall(Sup,supplement(Sup) , Supplementen),
   nl,nl,nl,nl,
+  writeln(Supplementen),
   vindalletekorten(Supplementen, Tekorten),
+  writeln(Tekorten),
   leguit(Tekorten).
 
-vindalletekorten([], []).
-vindalletekorten([Sup|T], [Sup|T2]):-
-  heefttekort(Sup),
-  vindalletekorten(T, T2).
-vindalletekorten([Sup,T], T2):-
-  not(heefttekort(Sup)),
-  vindalletekorten(T, T2).
 
 zijnernogklachten:-
   ongevraagdeklachten(X),
