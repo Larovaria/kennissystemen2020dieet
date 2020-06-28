@@ -11,7 +11,7 @@ supplement(calcium).
 %klachten die veroorzaakt worden door
 klacht(vermoeidheid).
 klacht(depressie).
-klacht(geheugen).
+klacht(geheugenproblemen).
 klacht(hoofdpijn).
 klacht(stress).
 klacht(spierproblemen).
@@ -33,14 +33,14 @@ zitin(supplement(calcium), 'bepaalde groente').
 zitin(supplement(calcium), noten).
 zitin(supplement(magnesium), pinda).
 zitin(supplement(magnesium), spinazie).
-zitin(supplement(magnesium), volkoren).
+zitin(supplement(magnesium), volkorenproducten).
 zitin(supplement(ijzer), vlees).
 zitin(supplement(ijzer), tahoe).
 zitin(supplement(ijzer), boerenkool).
 zitin(supplement(ijzer), noten).
 zitin(supplement(ijzer), ei).
 zitin(supplement(ijzer), bonen).
-zitin(supplement(ijzer), volkoren).
+zitin(supplement(ijzer), volkorenproducten).
 zitin(supplement(vitamineA), vlees).
 zitin(supplement(vitamineA), zuivel).
 zitin(supplement(vitamineA), ei).
@@ -168,7 +168,7 @@ oorzaak(klacht(vermoeidheid), vitamineD, tekort).
 oorzaak(klacht(vermoeidheid), magnesium, tekort).
 oorzaak(klacht(vermoeidheid), ijzer, tekort).
 oorzaak(klacht(depressie), vitamineD, tekort).
-oorzaak(klacht(geheugen), vitamineB12, tekort).
+oorzaak(klacht(geheugenproblemen), vitamineB12, tekort).
 oorzaak(klacht(stress), magnesium, tekort).
 oorzaak(klacht(spierproblemen), magnesium, tekort).
 oorzaak(klacht(botklachten), calcium, tekort).
@@ -217,7 +217,7 @@ issexe("m"):-
   iszwanger.
 issexe("v"):-
   writeln('u heeft aangegeven een vrouw te zijn'),
-  writeln('bent u toevallig zwanger? j/n'),
+  writeln('bent u zwanger? j/n'),
   vraag(Zwanger),
   asserta(zwanger(Zwanger)),
   iszwanger.
@@ -317,7 +317,7 @@ vraagnaarklacht([]):-
   ksy.
 vraagnaarklacht([H|T]):-
   format("Heeft u last van ~w~n", [H]),
-  writeln("1, Ja ik heb hier last van"),
+  writeln("1. Ja ik heb hier last van"),
   writeln("2. Nee ik heb hier geen last van"),
   writeln("0. Dit kan of wil ik niet zeggen"),
   vraag(Keuze),
@@ -351,8 +351,8 @@ vraagklachten:-
   printhuidigeklachten,
   nl,
   writeln('1. nog een klacht toevoegen'),
-  writeln('2. dit is incorrect, wis alles'),
-  writeln('0. dit is correct, ga terug'),
+  writeln('2. dit is incorrect, wis alle ingevoerde klachten'),
+  writeln('0. dit is correct, ga terug naar het hoofdmenu'),
   format('~46t~72|~n'),
   vraag(Keuze),
   klachteninvoer(Keuze).
@@ -382,9 +382,7 @@ verwerk_keuze("2"):-
 verwerk_keuze("3"):-
   findall(Sup,supplement(Sup) , Supplementen),
   nl,nl,nl,nl,
-  writeln(Supplementen),
   vindalletekorten(Supplementen, Tekorten),
-  writeln(Tekorten),
   leguit(Tekorten).
 
 
@@ -405,10 +403,10 @@ kennissysteem :-
   zijnernogklachten,
   nl,
   format('~46t~72|~n'),
-  writeln("kennissysteem om te bepalen waar de klachten door komen"),
-  writeln('1. Voer lichaams gegevens in'),
-  writeln('2. voer klachten in'),
-  writeln('3. bepaal tekorten'),
+  writeln("kennissysteem om te bepalen waar de klachten mogelijk door komen"),
+  writeln('1. Pas lichamelijke gegevens aan'),
+  writeln('2. Voer klachten in'),
+  writeln('3. Bepaal tekorten'),
   writeln('0. Afsluiten'),
   format('~46t~72|~n'),
   vraag(Keuze),
