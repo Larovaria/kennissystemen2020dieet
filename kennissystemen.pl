@@ -202,7 +202,7 @@ verwijderLichaam:-
 lichaaminvoer("j").
 lichaaminvoer("n"):-
   verwijderLichaam,
-  writeln('wat is uw lengte in meter? decimalen invoeren met een punt en geen comma'),
+  writeln('wat is uw lengte in meter? decimalen invoeren met een punt en geen komma'),
   read_line_to_string(user_input, L),
   writeln('wat is uw gewicht in kilogrammen?'),
   read_line_to_string(user_input, W),
@@ -218,6 +218,7 @@ issexe("m"):-
 issexe("v"):-
   writeln('u heeft aangegeven een vrouw te zijn'),
   writeln('bent u zwanger? j/n'),
+  nl,
   vraag(Zwanger),
   asserta(zwanger(Zwanger)),
   iszwanger.
@@ -241,7 +242,9 @@ lichaamToevoegen(L, W, S, A):-
   asserta(leeftijd(A2)).
 
 lichaamToevoegen(_,_,_,_):-
-  writeln('Deze waardes kunnen niet goed door het systeem behandeld worden'),
+  writeln('Deze waardes kunnen niet goed door het systeem verwerkt worden.'),
+  writeln('Probeer het opnieuw met in achtneming van de opmerkingen.'),
+  nl,
   lichaaminvoer("n").
 
 
@@ -298,11 +301,11 @@ printhuidigeklachten:-
     nl,
     format('~46t~72|~n'),
     lastvan(Last),
-    writeln("u heeft aangegeven dat u last heeft van: "),
+    writeln("u heeft aangegeven de volgende klachten/symptomen te hebben: "),
     schrijfopsomming(Last),
     nl,
     geenlast(GLast),
-    writeln("u heeft aangegeven dat u geen last heeft van: "),
+    writeln("u heeft aangegeven de volgende klachten/symptomen niet te hebben: "),
     schrijfopsomming(GLast),
     format('~46t~72|~n').
 
@@ -319,7 +322,9 @@ vraagnaarklacht([H|T]):-
   format("Heeft u last van ~w~n", [H]),
   writeln("1. Ja ik heb hier last van"),
   writeln("2. Nee ik heb hier geen last van"),
+  nl,
   writeln("0. Dit kan of wil ik niet zeggen"),
+  nl,
   vraag(Keuze),
   nieuweklacht(Keuze, H, T).
 
@@ -352,6 +357,7 @@ vraagklachten:-
   nl,
   writeln('1. nog een klacht toevoegen'),
   writeln('2. dit is incorrect, wis alle ingevoerde klachten'),
+  nl,
   writeln('0. dit is correct, ga terug naar het hoofdmenu'),
   format('~46t~72|~n'),
   vraag(Keuze),
@@ -397,16 +403,17 @@ zijnernogklachten.
 ksy:- kennissysteem.
 kennissysteem :-
   repeat,
-  write('\e[2J'),
+%  write('\e[2J'),
   illustratie,
   nl,
   zijnernogklachten,
   nl,
   format('~46t~72|~n'),
   writeln("kennissysteem om te bepalen waar de klachten mogelijk door komen"),
-  writeln('1. Pas lichamelijke gegevens aan'),
+  writeln('1. Controleer lichamelijke gegevens aan'),
   writeln('2. Voer klachten in'),
   writeln('3. Bepaal tekorten'),
+  nl,
   writeln('0. Afsluiten'),
   format('~46t~72|~n'),
   vraag(Keuze),
@@ -414,7 +421,6 @@ kennissysteem :-
 
 
 
-%TODO
 heefttekort(Sup):-
   supplement(Sup),
   findall(K, oorzaak(K, Sup, _), Klachten),
