@@ -1,3 +1,11 @@
+%kennissystemen
+%Supplement-tekorten verhelpen met een kennissysteem
+%Gemaakt door
+%Derek Vlaanderen(6244939) - Information Science, d.j.vlaanderen@students.uu.nl
+%Menno Duijnstee (4203445)  - Information Science - m.l.duijnstee@students.uu.nl
+%Luc d’Olivo (6255469) - Information Science - l.dolivo@students.uu.nl
+%Department of Information and Computing Sciences, Utrecht University, Utrecht, The Netherlands
+
 %concepten
 %-------------------------------------------
 %lijst van supplementen
@@ -225,10 +233,7 @@ vraag(Keuze):-
   read_line_to_string(user_input, Keuze),
   nl.
 
-
-
-
-
+%geeft de lichaamelijke gegevens van de gebruiker weer op het scherm
 printLichaam :-
   format('~46t~72|~n'),
   lengte(L),
@@ -240,6 +245,7 @@ printLichaam :-
   format('~46t~72|~n'),
   nl.
 
+%vraag aan de gebruiker of de lichamelijke gegevens correct zijn
 vraagomlichaam:-
   repeat,
   write('\e[2J'),%tty_clear
@@ -251,6 +257,7 @@ vraagomlichaam:-
   lichaaminvoer(Keuze),
   ksy.
 
+%de menu keuzes van het klachten menu
 klachteninvoer("0"):-
   ksy.
 klachteninvoer("1"):-
@@ -262,29 +269,32 @@ klachteninvoer("2"):-
   writeln('Om te weten wat uw tekorten zijn moet u klachten toevoegen'),
   vraagklachten.
 
+%geef een lijst waar de gebruiker wel en niet last van heeft
 lastvan(Last):-
     findall(K1, klachten(klacht(K1), ja), Last).
 geenlast(Last):-
       findall(K2, klachten(klacht(K2), nee), Last).
 
+%vertel aan de gebruiker waar aangegeven is wel en niet last van te hebben
 printhuidigeklachten:-
     nl,
 %    format('~46t~72|~n'),
     lastvan(Last),
     writeln("U heeft aangegeven de volgende klachten/symptomen te hebben: "),
-    schrijfopsomming(Last),
+    writeln(Last),
     nl,
     geenlast(GLast),
     writeln("U heeft aangegeven de volgende klachten/symptomen niet te hebben: "),
-    schrijfopsomming(GLast),
+    writeln(GLast),
     format('~46t~72|~n').
 
+%vraag naar klachten die nog niet in het systeem staan
 vraagnieuweklachten:-
   ongevraagdeklachten(X),
   vraagnaarklacht(X).
 
+%vraag aan de gebruiker over een specifieke klacht
 vraagnaarklacht([]):-
-%  writeln("we hebben op dit moment niks meer om te vragen"),
   vraagklachten.
 vraagnaarklacht([H|T]):-
   format("Heeft u last van ~w~n", [H]),
@@ -296,6 +306,7 @@ vraagnaarklacht([H|T]):-
   vraag(Keuze),
   nieuweklacht(Keuze, H, T).
 
+%verwerk het antwoord van een gebruiker om een klacht toe te voegen
 nieuweklacht("1", X, Y):-
   asserta(klachten(klacht(X), ja)),
   vraagnaarklacht(Y).
@@ -305,6 +316,7 @@ nieuweklacht("2", X, Y):-
 nieuweklacht("0", _, Y):-
   vraagnaarklacht(Y).
 
+%return alle klachten die nog niet gevraagd zijn
 ongevraagdeklachten(X):-
   findall(K1, klachten(klacht(K1), ja), L1),
   findall(K2, klachten(klacht(K2), nee), L2),
@@ -312,16 +324,17 @@ ongevraagdeklachten(X):-
   removeklachten(L3, L1, X1),
   removeklachten(X1, L2, X).
 
+%verwijder alle eleenten van de lijst uit een andere lijst,
+%dit word gebruikt bij het kijken welke klachten ongevraagd zijn
 removeklachten(L1, [Rh|Rt], L2):-
   delete(L1, Rh, L),
   removeklachten(L, Rt, L2).
 removeklachten(L, [], L).
 
-
+%het menu om naar klachten te vragen.
 vraagklachten:-
   repeat,
   write('\e[2J'),
-%  format('~46t~72|~n'),
   printhuidigeklachten,
   nl,
   writeln('1. Symptomen/klachten invoeren.'),
@@ -332,6 +345,8 @@ vraagklachten:-
   vraag(Keuze),
   klachteninvoer(Keuze).
 
+%dit geeft een lijst van alle tekorten waar de gebruiker mogelijk last van heeft
+%een gebruiker heeft ergens last van als alle bijbehorende klachten aanwezig zijn
 vindalletekorten([], []).
 vindalletekorten([Sup|T], [Sup|T2]):-
   heefttekort(Sup),
@@ -340,6 +355,7 @@ vindalletekorten([Sup|T], T2):-
   not(heefttekort(Sup)),
   vindalletekorten(T, T2).
 
+%de keuzes verwerken van het hoofdmenu
 verwerk_keuze("0").
 verwerk_keuze("1"):-
   vraagomlichaam.
@@ -347,12 +363,13 @@ verwerk_keuze("2"):-
   vraagklachten.
 verwerk_keuze("3"):-
   findall(Sup,supplement(Sup) , Supplementen),
-  nl,nl,nl,nl,
+  nl,nl,
   vindalletekorten(Supplementen, Tekorten),
   leguit(Tekorten).
 
 %wrapper voor lekker kort typen
 ksy:- kennissysteem.
+%het hoofdmenu van het programma
 kennissysteem :-
   repeat,
 %  write('\e[2J'),    weggehaald vanwege problemen met diagnose
@@ -372,16 +389,19 @@ kennissysteem :-
   vraag(Keuze),
   verwerk_keuze(Keuze).
 
-
-
+%kijkt of alle klachten die door een supplement veroorzaakt worden aanwezig zijn
 heefttekort(Sup):-
   supplement(Sup),
   findall(K, oorzaak(K, Sup, _), Klachten),
   heefttekorten(Klachten).
 
+%diagnose verteld waar de tekorten van de gebruiker zitten
+%welke klachten tot deze conclusie gekomen Zijn
+%waar dit supplement veelal in gevonden word en
+%hoeveel een gebruiker met deze lichaamsgegevens nodig heeft
 leguit([]):-
   ksy.
-leguit([Sup|T]):-
+leguit([Sup|T]):-%vitamine A is speciaal. het enige supplement dat in overschot voorkomt
   format('~46t~72|~n'),
   Sup = vitamineA,
   nodig(Sup, Nodig),
@@ -397,7 +417,7 @@ leguit([Sup|T]):-
   nl,
   format('~w zit in voeding als:~n', [Sup]),
   findall(Bevat, zitin(supplement(Sup), Bevat), Voeding),
-  schrijfopsomming(Voeding),
+  writeln(Voeding),
   nl,
   format('Voor een persoon met uw lichaamswaardes wordt ongeveer ~w van ~w aanbevolen als maximale hoeveelheid per dag.', [Nodig, Sup]),
   nl,
@@ -412,17 +432,18 @@ leguit([Sup|T]):-
   writeln(' tekort,'),
   writeln('omdat u heeft aangegeven dat u last heeft van'),
   parseklachten(Klachten, KL2),
-  schrijfopsomming(KL2),
+  writeln(KL2),
   nl,
   format('~w is te halen uit voeding als:~n', [Sup]),
   findall(Bevat, zitin(supplement(Sup), Bevat), Voeding),
-  schrijfopsomming(Voeding),
+  writeln(Voeding),
   writeln('Indien u dit niet kunt of wilt eten kunt u ook supplementen gebruiken.'),
   nl,
   format('Een persoon met uw lichaamswaardes wordt ongeveer ~w van ~w aanbevolen per dag.', [Nodig, Sup]),
   nl,
   leguit(T).
 
+%schrijft een lijst van klachten netjes op het scherm
 schrijfklachten([klacht(K)]):-
   write(K),
   nl.
@@ -431,37 +452,19 @@ schrijfklachten([klacht(H)|T]):-
   write(', '),
   schrijfklachten(T).
 
+%kijk of een lijst van klachten allemaal aanwezig is
 heefttekorten([]).
 heefttekorten([H|T]):-
   klachten(H, ja),
   heefttekorten(T).
 
+%parse een lijst van klacht(Klacht) naar een lijst van losse atomen
 parseklachten([],[]).
 parseklachten([klacht(X)|T1],[X|T2]):-
   parseklachten(T1,T2).
 
-
-/*
-schrijfopsomming([]).
-schrijfopsomming([X]):-
-  write(X),
-  write('.'),
-  nl.
-schrijfopsomming([X, Y]):-
-  write(X),
-  write(' en '),
-  write(Y),
-  write('.'),
-  nl.
-schrijfopsomming([H|T]):-
-  write(H),
-  write(', '),
-  schrijfopsomming(T).
-*/
-schrijfopsomming(X):-
-  writeln(X).
-
-
+%print het logo van de APP(el)
+%op verzoek van marijn een ascii afbeelding er in gezet
 illustratie:-
   writeln(" ,--./,-."),
   writeln("/ #      \\"),
@@ -469,7 +472,8 @@ illustratie:-
   writeln("\\    v   /"),
   writeln(" `._,._,'").
 
-
+%wat moet worden uitgvoerd bij inladen van het programma
+%alle gegevens worden gewist en het programma word gestart
 initialisatie:-
   lichaaminvoer("n"),
   retractall(klachten(_, _)),
