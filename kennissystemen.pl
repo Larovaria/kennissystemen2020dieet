@@ -54,6 +54,7 @@ zitin(supplement(vitamineA), vis).
 :- dynamic gewicht/1.
 :- dynamic geslacht/1.
 :- dynamic leeftijd/1.
+:- dynamic zwanger/1.
 %-------------------------------------------
 
 
@@ -79,19 +80,19 @@ gewichtsklasse(4):-
 %lengteklasse 140 150 170 190
 lengteklasse(1):-
   lengte(L),
-  L>=140,
-  L<150.
+  L>=1.40,
+  L<1.50.
 lengteklasse(2):-
   lengte(L),
-  L>=150,
-  L<170.
+  L>=1.50,
+  L<1.70.
 lengteklasse(3):-
   lengte(L),
-  L>=170,
-  L<190.
+  L>=1.70,
+  L<1.90.
 lengteklasse(1):-
   lengte(L),
-  L>=190.
+  L>=1.90.
 
 %leeftijdklasse 10, 30, 50, 70
 leeftijdklasse(1):-
@@ -157,28 +158,6 @@ nodig(vitamineA, '700mcg').
 nodig(X, poep):-
   format('er is een error met supplement ~w', [X]).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 %relaties
 %-------------------------------------------
 %word veroorzaakt door
@@ -193,12 +172,6 @@ oorzaak(klacht(geheugen), vitamineB12, tekort).
 oorzaak(klacht(stress), magnesium, tekort).
 oorzaak(klacht(spierproblemen), magnesium, tekort).
 oorzaak(klacht(botklachten), calcium, tekort).
-
-%word berekend met
-% lichaamsgegevens van de gebruiker
-% BMI berekend met gegevens lichaamswaardes.
-lichaam(lengte(L), gewicht(G), geslacht(m), leeftijd(_), BMI):-
-    BMI is G/(L*L).
 %-------------------------------------------
 
 
@@ -222,13 +195,14 @@ verwijderLichaam:-
     retractall(lengte(_)),
     retractall(gewicht(_)),
     retractall(geslacht(_)),
-    retractall(leeftijd(_)).
+    retractall(leeftijd(_)),
+    retractall(zwanger(_)).
 
 
 lichaaminvoer("j").
 lichaaminvoer("n"):-
   verwijderLichaam,
-  writeln('wat is uw lengte in meter?'),
+  writeln('wat is uw lengte in meter? decimalen invoeren met een punt en geen comma'),
   read_line_to_string(user_input, L),
   writeln('wat is uw gewicht in kilogrammen?'),
   read_line_to_string(user_input, W),
@@ -239,7 +213,20 @@ lichaaminvoer("n"):-
   lichaamToevoegen(L, W, S, A).
 
 issexe("m").
-issexe("v").
+issexe("v"):-
+  writeln('u heeft aangegeven een vrouw te zijn'),
+  writeln('bent u toevallig zwanger? j/n'),
+  vraag(Zwanger),
+  asserta(zwanger(Zwanger)),
+  iszwanger.
+iszwanger:-
+  zwanger("j"),
+  retractall(klachten(klacht(zwangerschap), _)),
+  asserta(klachten(klacht(zwangerschap), ja)).
+iszwanger:-
+  not(zwanger("ja")),
+  retractall(klachten(klacht(zwangerschap), _)),
+  asserta(klachten(klacht(zwangerschap), nee)).
 
 lichaamToevoegen(L, W, S, A):-
   number_string(L2, L),
@@ -281,7 +268,7 @@ printLichaam :-
 vraagomlichaam:-
   repeat,
   write('\e[2J'),%tty_clear
-  illustratie,
+%  illustratie,
   nl,
   printLichaam,
   writeln('is dit correct? j/n'),
@@ -295,6 +282,7 @@ klachteninvoer("1"):-
   vraagnieuweklachten.
 klachteninvoer("2"):-
   retractall(klachten(_, _)),
+  iszwanger,
   writeln('Nu staan er geen klachten meer in het systeem'),
   writeln('om te weten wat uw tekorten zijn moet u klachten toevoegen'),
   vraagklachten.
@@ -426,14 +414,36 @@ kennissysteem :-
 %TODO
 heefttekort(Sup):-
   supplement(Sup),
-  findall(K, oorzaak(K, Sup, tekort), Klachten),
+  findall(K, oorzaak(K, Sup, _), Klachten),
   heefttekorten(Klachten).
 
 leguit([]):-
   ksy.
 leguit([Sup|T]):-
+  format('~46t~72|~n'),
+  Sup = vitamineA,
   nodig(Sup, Nodig),
-  findall(K, oorzaak(K, Sup, tekort), Klachten),
+  findall(K, oorzaak(K, vitamineA, _), Klachten),
+  heefttekorten(Klachten),
+  write("U heeft mogelijk last van "),
+  write(Sup),
+  writeln(' overschot'),
+  writeln('dit is beredeneerd omdat u heeft aangegeven dat zwanger bent'),
+  nl,
+  writeln('vrouwen die zwaner zijn lopen gevaar op een vitamine A overschot'),
+  writeln('wees voorzichtig met het eten van voedsel waar dit inzit'),
+  nl,
+  format('~w zit in voeding als:~n', [Sup]),
+  findall(Bevat, zitin(supplement(Sup), Bevat), Voeding),
+  schrijfopsomming(Voeding),
+  nl,
+  format('een persoon met uw lichaamswaardes kan ongeveer ~w van ~w aan', [Nodig, Sup]),
+  nl,
+  leguit(T).
+leguit([Sup|T]):-
+  format('~46t~72|~n'),
+  nodig(Sup, Nodig),
+  findall(K, oorzaak(K, Sup, _), Klachten),
   heefttekorten(Klachten),
   write("U heeft mogelijk last van "),
   write(Sup),
@@ -446,12 +456,17 @@ leguit([Sup|T]):-
   schrijfopsomming(Voeding),
   writeln('als u dit niet wilt eten kunt u ook supplementen nemen'),
   nl,
-
-%  writeln(Nodig),
   format('een persoon met uw lichaamswaardes heeft ongeveer ~w van ~w nodig', [Nodig, Sup]),
-  nl,nl,nl,nl,nl,nl,nl,nl,nl,
+  nl,
   leguit(T).
 
+schrijfklachten([klacht(K)]):-
+  write(K),
+  nl.
+schrijfklachten([klacht(H)|T]):-
+  write(H),
+  write(', '),
+  schrijfklachten(T).
 
 heefttekorten([]).
 heefttekorten([H|T]):-
@@ -493,5 +508,4 @@ initialisatie:-
   lichaaminvoer("n"),
   retractall(klachten(_, _)),
   ksy.
-
 :- initialisatie.
