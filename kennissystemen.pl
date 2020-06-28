@@ -110,11 +110,9 @@ leeftijdklasse(4):-
 %hoeveel iemand nodig heeft van welk supplement voor welk lichaam
 %tabel te vinden in verslag is gehaald van voedingscentrum
 nodig(vitamineD, '15mcg').
-
 nodig(vitamineB12, '1.8mcg'):-
   leeftijdklasse(1).
 nodig(vitamineB12, '2.4mcg').
-
 nodig(ijzer, '18mg'):-
   geslacht("v"),
   leeftijdklasse(2).
@@ -122,14 +120,12 @@ nodig(ijzer, '18mg'):-
   geslacht("v"),
   leeftijdklasse(3).
 nodig(ijzer, '8mg').
-
 nodig(calcium, '1300mg'):-
   leeftijdklasse(1).
 nodig(calcium, '1200mg'):-
   leeftijdklasse(4),
   geslacht("v").
 nodig(calcium, '1000mg').
-
 nodig(magnesium, '240mg'):-
   leeftijdklasse(1).
 nodig(magnesium, '400mg'):-
@@ -142,7 +138,6 @@ nodig(magnesium, '420mg'):-
   geslacht("m").
 nodig(magnesium, '320mg'):-
   geslacht("v").
-
 nodig(vitamineA, '600mcg'):-
   leeftijdklasse(1).
 nodig(vitamineA, '900mcg'):-
@@ -165,21 +160,6 @@ oorzaak(klacht(spierproblemen), magnesium, tekort).
 oorzaak(klacht(botklachten), calcium, tekort).
 %-------------------------------------------
 
-
-
-%regels
-% ------------------------------------------
-% wat het probleem is met een bepaald supplement S met inname X voor een
-% persoon met EEN bepaald BMI
-probleem(S, X, lichaam(_,_,_,_,BMI), tekort):-
-    supplement(S, Y),
-    X is Y*BMI.
-probleem(vitamineA, X, lichaam(_,_,geslacht(v),_, BMI), overschot):-
-    supplement(vitamineA, Y),
-    X is Y*BMI.
-%-------------------------------------------
-
-
 %progamma
 %-------------------------------------------
 verwijderLichaam:-
@@ -189,7 +169,7 @@ verwijderLichaam:-
     retractall(leeftijd(_)),
     retractall(zwanger(_)).
 
-
+%vraag de lichaams gegevens aan de gebruiker
 lichaaminvoer("j").
 lichaaminvoer("n"):-
   verwijderLichaam,
@@ -203,6 +183,7 @@ lichaaminvoer("n"):-
   read_line_to_string(user_input, A),
   lichaamToevoegen(L, W, S, A).
 
+%voert de regels omprent zwanger zijn en het vragen hiervan uit
 issexe("m"):-
   asserta(zwanger("n")),
   iszwanger.
@@ -222,6 +203,7 @@ iszwanger:-
   retractall(klachten(klacht(zwangerschap), _)),
   asserta(klachten(klacht(zwangerschap), nee)).
 
+%controleer of de lichaamsgegevens compatible zijn met het systeem.
 lichaamToevoegen(L, W, S, A):-
   number_string(L2, L),
   asserta(lengte(L2)),
@@ -231,14 +213,11 @@ lichaamToevoegen(L, W, S, A):-
   asserta(geslacht(S)),
   number_string(A2, A),
   asserta(leeftijd(A2)).
-
 lichaamToevoegen(_,_,_,_):-
   writeln('Deze waardes kunnen niet goed door het systeem verwerkt worden.'),
   writeln('Probeer het opnieuw met inachtneming van de aanwijzingen.'),
   nl,
   lichaaminvoer("n").
-
-
 
 %schone manier om duidelijk de vraag te onderscheiden
 vraag(Keuze):-
