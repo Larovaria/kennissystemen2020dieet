@@ -313,8 +313,6 @@ vraagnieuweklachten:-
   ongevraagdeklachten(X),
   vraagnaarklacht(X).
 
-
-
 vraagnaarklacht([]):-
   writeln("we hebben op dit moment niks meer om te vragen"),
   ksy.
@@ -326,14 +324,15 @@ vraagnaarklacht([H|T]):-
   writeln("0. Dit kan of wil ik niet zeggen"),
   nl,
   vraag(Keuze),
-  nieuweklacht(Keuze, H, T).
+  nieuweklacht(Keuze, H, T),
+  vraagklachten.
 
 nieuweklacht("1", X, _):-
   asserta(klachten(klacht(X), ja)),
-  vraagklachten.
+  vraagnaarklacht(Y).
 nieuweklacht("2", X, _):-
   asserta(klachten(klacht(X), nee)),
-  vraagklachten.
+  vraagnaarklacht(Y).
 nieuweklacht("0", _, Y):-
   vraagnaarklacht(Y).
 
